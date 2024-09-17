@@ -28,7 +28,7 @@ function Signup() {
         if(isError){
             console.log(JSON.stringify(error))
         } 
-    },[data])
+    },[data, isError])
 
     if(data){
         return(
