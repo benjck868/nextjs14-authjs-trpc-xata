@@ -1,27 +1,42 @@
 "use client"
-import { signIn} from 'next-auth/react'
 import { SignInSchema } from '@/schemas/auth'
 import { useFormik } from 'formik'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
+import { trpc } from '@/utils/clientTrpc'
+import { redirect, useRouter } from 'next/navigation'
 
-export default function Signin() {
-  const initialValues: z.infer<typeof SignInSchema> = {
+function Signin() {
+  const router = useRouter()
+  const [errorMessage, setErrorMessage] = useState("")
+  const {mutate,data,isPending,error} = trpc.signin.useMutation()
+  useEffect(()=>{
+    if(data){
+      console.log(data)
+      router.push('/dashboard')
+    }
+    if(error){
+      setErrorMessage(error.message)
+    }
+  }, [data, error, router])
+  const initialValues:z.infer<typeof SignInSchema> = {
     email: "benjack@gmail.com",
-    password: "xxxxxxssssss"
+    password: ""
   }
   const formik = useFormik({
     initialValues : initialValues,
     validationSchema: toFormikValidationSchema(SignInSchema),
     onSubmit: async(values) => {
-      const login = await signIn("credentials",values)
-      console.log(JSON.stringify(login))
+       mutate(values)
     }
-
   })
+  
   return (
     <div>
+      <div>
+        {errorMessage}
+      </div>
       <form onSubmit={formik.handleSubmit}>
         <div>
           <input type="email" name="email" className="input-text" onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.email}/>
@@ -34,9 +49,11 @@ export default function Signin() {
           <div>{formik.errors.password&&formik.touched.password&&formik.errors.password}</div>
         </div>
         <div>
-          <button type="submit">Login</button>
+          <button type="submit" disabled={isPending}>{isPending?"loading.....":"Login"}</button>
         </div>
       </form>
     </div>
   )
 }
+
+export default trpc.withTRPC(Signin)

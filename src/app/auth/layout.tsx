@@ -7,13 +7,8 @@ export default function AuthLayout({children}:{children: ReactNode}) {
   if(status === "authenticated"){
     console.log("login na")
   }
-  console.log(status)
   return (
     <div>
-        <div>
-            auth layout
-            <button onClick={()=>signOut()}>sign out</button>
-        </div>
         {children}
     </div>
   )

@@ -1,36 +1,41 @@
-import NextAuth from "next-auth";
+import NextAuth, { AuthError, CredentialsSignin } from "next-auth";
 import Github from "next-auth/providers/github"
 import Credentials from "next-auth/providers/credentials"
 import bcryptjs from "bcryptjs"
 import { SignInSchema } from "./schemas/auth";
 import prisma from "./lib/db";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { z } from "zod";
 
 export const {handlers, signIn, signOut, auth} = NextAuth({
+    adapter: PrismaAdapter(prisma),
+    session: {
+      strategy: "jwt"
+    },
     pages: {
         signIn: "/auth/signin",
     },
     providers: [
         Github,
         Credentials({
-            credentials: {
-                email: {label: "password", type: "text"},
-                password: {label:"password", type: "password"}
-            },
-            authorize: async (credentials)=> {
-                const validateLoginInputFields = SignInSchema.safeParse(credentials)
-                if(validateLoginInputFields.success){
-                    console.log(JSON.stringify(validateLoginInputFields.data))
-                    const {email, password} = validateLoginInputFields.data
-                    const user = await prisma.user.findUnique({where:{email:email}})
-                    if(!user || !user.password) return null
-                    const passwordMatch = await bcryptjs.compare(password, user.password)
-                    if(passwordMatch){
-                        return user
-                    }
-                }
-                
-                return null
-            }
-        })
+      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
+      // e.g. domain, username, password, 2FA token, etc.
+      credentials: {
+        email: {
+            name: "email"
+        },
+        password: {
+            name:"password"
+        },
+      },
+      authorize: async (credentials) => {  
+        if(!credentials) return null
+        if(credentials && "email" in credentials && typeof credentials.email === "string" ){
+          const user = prisma.user.findUnique({where: {email: credentials.email}})
+          return user
+        }
+        return null
+      },
+    }),
     ]    
 })

@@ -1,5 +1,6 @@
+import { signIn } from "@/auth";
 import { publicProcedure, router } from "./server";
-import { SignupSchema } from "@/schemas/auth";
+import { SignInSchema, SignupSchema } from "@/schemas/auth";
 import { TRPCError } from "@trpc/server";
 import bcryptjs from 'bcryptjs'
 
@@ -23,6 +24,23 @@ export const appRouter = router({
             }
         })
         return newUser
+    }),
+    signin: publicProcedure.input(SignInSchema).mutation(async ({ctx, input})=>{
+        const {email, password} = input
+        const {prisma} = ctx
+        const dbuser = await prisma.user.findUnique({where:{email: email},select:{
+            email: true,
+            password: true
+        }})
+        let comparePassword = false
+        
+        if(!dbuser) throw new TRPCError({code:"BAD_REQUEST", message:"Incorrect credentials."})
+        if(dbuser.password){
+            comparePassword = await bcryptjs.compare(password, dbuser.password)
+        }
+        if(!comparePassword) throw new TRPCError({code:"BAD_REQUEST", message:"Incorrect password."})
+        const signinUserUsingCredentials = await signIn("credentials", {email: email, password: password, redirect:false})
+        return dbuser
     })
 })
 
