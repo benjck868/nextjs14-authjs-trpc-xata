@@ -1,6 +1,7 @@
 import {SessionProvider } from 'next-auth/react'
 import './globals.css'
 import { Inter } from 'next/font/google'
+import UserMenu from '@/components/UserMenu'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,7 +19,6 @@ export default async function RootLayout({
     <SessionProvider>
     <html lang="en">
       <body className={inter.className}>
-        <div>root layout</div>
         {children}
       </body>
     </html>

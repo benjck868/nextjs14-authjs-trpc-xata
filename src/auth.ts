@@ -1,11 +1,8 @@
-import NextAuth, { AuthError, CredentialsSignin } from "next-auth";
+import NextAuth from "next-auth";
 import Github from "next-auth/providers/github"
 import Credentials from "next-auth/providers/credentials"
-import bcryptjs from "bcryptjs"
-import { SignInSchema } from "./schemas/auth";
 import prisma from "./lib/db";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { z } from "zod";
 
 export const {handlers, signIn, signOut, auth} = NextAuth({
     adapter: PrismaAdapter(prisma),
