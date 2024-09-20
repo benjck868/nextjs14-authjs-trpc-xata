@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 import { auth } from "./auth"
 
-export async function middleware(request:Request){
-    const session = await auth()
+export function middleware(request:Request){
+    const session = auth()
     if(!session){
         return NextResponse.redirect(new URL("/auth/signin",request.url))
     }

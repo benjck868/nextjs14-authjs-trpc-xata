@@ -14,7 +14,7 @@ function Signin() {
   useEffect(()=>{
     if(data){
       console.log(data)
-      router.push('/dashboard')
+      redirect('/dashboard')
     }
     if(error){
       setErrorMessage(error.message)
