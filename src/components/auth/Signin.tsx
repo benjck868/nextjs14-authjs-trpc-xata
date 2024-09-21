@@ -6,6 +6,14 @@ import { z } from 'zod'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 import { trpc } from '@/utils/clientTrpc'
 import { redirect, useRouter } from 'next/navigation'
+import { Button } from '../ui/button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
+import { Label } from '@radix-ui/react-label'
+import { Input } from '../ui/input'
+import { signIn } from '@/auth'
+import { RegularGoogle, RegularGithub } from 'lineicons-react'
+import { Alert, AlertDescription } from '../ui/alert'
+import SigninWithOauth from './SigninWithOauth'
 
 function Signin() {
   const router = useRouter()
@@ -21,7 +29,7 @@ function Signin() {
     }
   }, [data, error, router])
   const initialValues:z.infer<typeof SignInSchema> = {
-    email: "benjack@gmail.com",
+    email: "",
     password: ""
   }
   const formik = useFormik({
@@ -33,26 +41,47 @@ function Signin() {
   })
   
   return (
-    <div>
-      <div>
-        {errorMessage}
-      </div>
+    <>
       <form onSubmit={formik.handleSubmit}>
-        <div>
-          <input type="email" name="email" className="input-text" onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.email}/>
-          <div>
-            {formik.errors.email&&formik.touched.email&&formik.errors.email}
+        <div className="grid w-full items-center gap-4">
+          <div className="flex flex-col space-y-1.5">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="text"
+              placeholder="m@example.com"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            <div className="text-xs text-red-400">
+              {formik.errors.email&&formik.touched.email&&formik.errors.email}
+            </div>
+          </div>
+          <div className="flex flex-col space-y-1.5">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            <div className="text-xs text-red-400">
+              {formik.errors.password&&formik.touched.password&&formik.errors.password}
+            </div>
           </div>
         </div>
-        <div>
-          <input type="password" name="password" className="input-text" onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.password}/>
-          <div>{formik.errors.password&&formik.touched.password&&formik.errors.password}</div>
-        </div>
-        <div>
-          <button type="submit" disabled={isPending}>{isPending?"loading.....":"Login"}</button>
-        </div>
+        <Button className="w-full mt-6" type="submit" disabled={isPending}>
+          {isPending ? 'Signing in...' : 'Sign In'}
+        </Button>
       </form>
-    </div>
+      {error && (
+        <Alert variant="destructive" className="mt-4">
+          <AlertDescription>{error.message}</AlertDescription>
+        </Alert>
+      )}
+    </>
   )
 }
 

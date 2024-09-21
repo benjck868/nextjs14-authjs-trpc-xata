@@ -1,6 +1,7 @@
 import { signIn } from '@/auth'
 import Navbar from '@/components/Navbar'
 import { SigninButton } from '@/components/SignoutButton'
+import { Button } from '@/components/ui/button'
 import UserMenu from '@/components/UserMenu'
 import prisma from '@/lib/db'
 import Link from 'next/link'
@@ -21,6 +22,7 @@ export default async function Home() {
                   Dashboard
               </Link>
               <SigninButton />
+              <Button >Click me babe.</Button>
           </div>
       </div>
       <form action={async () => {

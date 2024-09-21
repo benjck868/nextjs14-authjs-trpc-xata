@@ -7,7 +7,7 @@ export default async function UserMenu() {
 
   return (
     <div>
-        {session?.user?.name}{<SignoutButton/>}
+        {session?.user?.name}{session&&<SignoutButton/> }
     </div> 
   )
 }
